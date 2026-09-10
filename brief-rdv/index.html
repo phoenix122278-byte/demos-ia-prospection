@@ -1144,10 +1144,11 @@
       return {line:line, mark:mark, result:result, step:step};
     });
 
+    var STEP_DELAYS = [1700, 2000, 1850, 2300];
     var i = 0;
     function step(){
       if(i >= lines.length){
-        setTimeout(done, 450);
+        setTimeout(done, 900);
         return;
       }
       var current = lines[i];
@@ -1158,7 +1159,7 @@
         current.line.classList.add("done");
         i++;
         step();
-      }, 480);
+      }, STEP_DELAYS[i] || 1800);
     }
     step();
   }
