@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Démos IA — Prospection</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --bg:#F1F0EA; --surface:#FFFFFF; --border:#DBD8CD;
+    --ink:#1B2027; --ink-soft:#5C6169; --ink-faint:#8B8F94; --accent:#BC5A2A;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#13161C; --surface:#1A1E25; --border:#2C313B;
+      --ink:#EDEAE2; --ink-soft:#A2A7AE; --ink-faint:#71767D; --accent:#E08A4E;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#13161C; --surface:#1A1E25; --border:#2C313B;
+    --ink:#EDEAE2; --ink-soft:#A2A7AE; --ink-faint:#71767D; --accent:#E08A4E;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:'IBM Plex Sans',sans-serif;}
+  .wrap{max-width:640px; margin:0 auto; padding:48px 20px 60px;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace; font-size:0.72rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-faint);}
+  h1{font-family:'Fraunces',Georgia,serif; font-weight:600; font-size:clamp(1.8rem,6vw,2.3rem); margin:8px 0 6px;}
+  p.lead{color:var(--ink-soft); max-width:48ch; line-height:1.5;}
+  .list{margin-top:28px; display:flex; flex-direction:column; gap:10px;}
+  .item{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    padding:16px 18px; text-decoration:none; color:var(--ink);
+  }
+  .item.live:hover{ border-color:var(--accent); }
+  .item strong{font-size:1rem; font-weight:600;}
+  .item span{display:block; font-size:0.82rem; color:var(--ink-soft); margin-top:2px;}
+  .status{font-family:'IBM Plex Mono',monospace; font-size:0.66rem; text-transform:uppercase; letter-spacing:0.06em; padding:4px 9px; border-radius:99px; white-space:nowrap;}
+  .status.live{ color:var(--accent); border:1px solid var(--accent); }
+  .status.soon{ color:var(--ink-faint); border:1px solid var(--border); }
+  .item.soon{ opacity:0.55; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="eyebrow">Modules IA — démonstration</p>
+    <h1>Démos IA pour la prospection</h1>
+    <p class="lead">Série d'applications simulant des modules IA, pour illustrer des cas d'usage en rendez-vous prospect.</p>
+    <div class="list">
+      <a class="item live" href="brief-rdv/">
+        <span><strong>Brief-RDV</strong><span>Synthèse automatique avant rendez-vous (mails, CR, CRM)</span></span>
+        <span class="status live">Disponible</span>
+      </a>
+      <div class="item soon">
+        <span><strong>Application 2 à 10</strong><span>À venir</span></span>
+        <span class="status soon">Bientôt</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

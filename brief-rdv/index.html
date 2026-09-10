@@ -1,0 +1,1349 @@
+<title>Brief-RDV</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --bg:#F1F0EA;
+    --surface:#FFFFFF;
+    --surface-2:#E7E5DC;
+    --ink:#1B2027;
+    --ink-soft:#5C6169;
+    --ink-faint:#8B8F94;
+    --border:#DBD8CD;
+    --accent:#BC5A2A;
+    --accent-strong:#A64C21;
+    --accent-ink:#FFF8F1;
+    --tag-email:#3B5B7A;
+    --tag-email-bg:#E7EEF4;
+    --tag-meeting:#2E7A67;
+    --tag-meeting-bg:#E5F1EC;
+    --tag-crm:#9C7A1E;
+    --tag-crm-bg:#F3EBD6;
+    --shadow:rgba(27,32,39,0.09);
+    --focus:#BC5A2A;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#13161C;
+      --surface:#1A1E25;
+      --surface-2:#232833;
+      --ink:#EDEAE2;
+      --ink-soft:#A2A7AE;
+      --ink-faint:#71767D;
+      --border:#2C313B;
+      --accent:#E08A4E;
+      --accent-strong:#EE9B5F;
+      --accent-ink:#20140A;
+      --tag-email:#8FB4DA;
+      --tag-email-bg:#1E2733;
+      --tag-meeting:#7FCBB3;
+      --tag-meeting-bg:#1B2A26;
+      --tag-crm:#E0C077;
+      --tag-crm-bg:#2B2515;
+      --shadow:rgba(0,0,0,0.45);
+      --focus:#E08A4E;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#13161C;
+    --surface:#1A1E25;
+    --surface-2:#232833;
+    --ink:#EDEAE2;
+    --ink-soft:#A2A7AE;
+    --ink-faint:#71767D;
+    --border:#2C313B;
+    --accent:#E08A4E;
+    --accent-strong:#EE9B5F;
+    --accent-ink:#20140A;
+    --tag-email:#8FB4DA;
+    --tag-email-bg:#1E2733;
+    --tag-meeting:#7FCBB3;
+    --tag-meeting-bg:#1B2A26;
+    --tag-crm:#E0C077;
+    --tag-crm-bg:#2B2515;
+    --shadow:rgba(0,0,0,0.45);
+    --focus:#E08A4E;
+  }
+
+  *{ box-sizing:border-box; }
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', -apple-system, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{
+    max-width:460px;
+    margin:0 auto;
+    min-height:100vh;
+    padding:20px 18px 48px;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+
+  /* header */
+  .topbar{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .brand-mark{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+  }
+  .demo-badge{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.62rem;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--accent);
+    border:1px solid var(--accent);
+    border-radius:99px;
+    padding:3px 9px;
+    white-space:nowrap;
+  }
+  .wordmark{
+    font-family:'Fraunces', Georgia, serif;
+    font-weight:600;
+    font-size:clamp(2rem,8vw,2.45rem);
+    line-height:1.05;
+    letter-spacing:-0.01em;
+    margin-top:2px;
+  }
+  .wordmark em{
+    font-style:italic;
+    font-weight:500;
+    color:var(--accent);
+  }
+  .tagline{
+    color:var(--ink-soft);
+    font-size:0.92rem;
+    margin-top:6px;
+    line-height:1.5;
+    max-width:34ch;
+  }
+
+  [hidden]{ display:none !important; }
+
+  /* ---------- CAPTURE VIEW ---------- */
+  .mic-zone{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:14px;
+    padding:22px 0 8px;
+  }
+  .mic-btn{
+    position:relative;
+    width:112px;
+    height:112px;
+    border-radius:50%;
+    border:1.5px solid var(--accent);
+    background:var(--surface);
+    color:var(--accent);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    transition:background .18s ease, color .18s ease, transform .12s ease;
+  }
+  .mic-btn:hover{ transform:translateY(-1px); }
+  .mic-btn:active{ transform:translateY(0); }
+  .mic-btn:focus-visible{ outline:2px solid var(--focus); outline-offset:3px; }
+  .mic-btn svg{ width:38px; height:38px; }
+  .mic-btn.listening{
+    background:var(--accent);
+    color:var(--accent-ink);
+    animation:pulse 1.6s ease-out infinite;
+  }
+  @media (prefers-reduced-motion: reduce){ .mic-btn.listening{ animation:none; } }
+  @keyframes pulse{
+    0%{ box-shadow:0 0 0 0 rgba(188,90,42,0.35); }
+    70%{ box-shadow:0 0 0 18px rgba(188,90,42,0); }
+    100%{ box-shadow:0 0 0 0 rgba(188,90,42,0); }
+  }
+  .mic-hint{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    min-height:1em;
+  }
+  .mic-hint.live{ color:var(--accent); }
+
+  .transcript{
+    min-height:1.4em;
+    font-size:0.98rem;
+    color:var(--ink-soft);
+    text-align:center;
+    padding:0 6px;
+    line-height:1.5;
+  }
+  .transcript.filled{ color:var(--ink); }
+
+  .no-speech-note{
+    font-size:0.82rem;
+    color:var(--ink-faint);
+    text-align:center;
+    line-height:1.5;
+    padding:0 10px;
+  }
+
+  .field-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:16px 16px 12px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    box-shadow:0 1px 2px var(--shadow);
+  }
+  .field{
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+  }
+  .field label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.66rem;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+  }
+  .field input{
+    border:none;
+    border-bottom:1.5px solid var(--border);
+    background:transparent;
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:1.02rem;
+    padding:5px 2px 8px;
+    outline:none;
+    transition:border-color .15s ease;
+  }
+  .field input::placeholder{ color:var(--ink-faint); }
+  .field input:focus{ border-color:var(--accent); }
+
+  .match-status{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.7rem;
+    letter-spacing:0.03em;
+    color:var(--ink-faint);
+    min-height:1.2em;
+  }
+  .match-status.ok{ color:var(--tag-meeting); }
+  .match-status.warn{ color:var(--accent); }
+
+  .chips-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.66rem;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    padding:0 2px;
+  }
+  .chips{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding:2px 2px 6px;
+    scrollbar-width:thin;
+  }
+  .chip{
+    flex:0 0 auto;
+    border:1px solid var(--border);
+    background:var(--surface);
+    color:var(--ink-soft);
+    font-size:0.82rem;
+    padding:7px 13px;
+    border-radius:99px;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:border-color .15s ease, color .15s ease;
+  }
+  .chip:hover{ border-color:var(--accent); color:var(--accent); }
+  .chip:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+
+  .generate-btn{
+    width:100%;
+    border:none;
+    background:var(--accent);
+    color:var(--accent-ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    font-weight:600;
+    font-size:1rem;
+    padding:14px 18px;
+    border-radius:12px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    transition:background .15s ease, opacity .15s ease;
+  }
+  .generate-btn:hover{ background:var(--accent-strong); }
+  .generate-btn:focus-visible{ outline:2px solid var(--focus); outline-offset:3px; }
+  .generate-btn:disabled{ opacity:0.45; cursor:not-allowed; }
+  .generate-btn svg{ width:18px; height:18px; }
+
+  /* ---------- LOADING VIEW ---------- */
+  .loading-wrap{
+    padding:28px 4px;
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+  }
+  .loading-title{
+    font-family:'Fraunces', Georgia, serif;
+    font-size:1.3rem;
+    font-weight:600;
+  }
+  .log{
+    display:flex;
+    flex-direction:column;
+    gap:0;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.82rem;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:6px 4px;
+  }
+  .log-line{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    padding:9px 12px;
+    color:var(--ink-faint);
+    opacity:0;
+    transform:translateY(3px);
+    transition:opacity .3s ease, transform .3s ease, color .2s ease;
+    border-bottom:1px solid var(--border);
+  }
+  .log-line:last-child{ border-bottom:none; }
+  .log-line.show{ opacity:1; transform:translateY(0); }
+  .log-line.done{ color:var(--ink-soft); }
+  .log-line .mark{ width:1.1em; flex:0 0 auto; color:var(--tag-meeting); }
+  .log-line .src{ color:var(--ink); font-weight:500; }
+  .log-line .result{ color:var(--ink-faint); }
+
+  /* ---------- CHOICE VIEW ---------- */
+  .choice-wrap{
+    padding:30px 4px 10px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+    text-align:center;
+  }
+  .choice-title{
+    font-family:'Fraunces', Georgia, serif;
+    font-weight:600;
+    font-size:1.25rem;
+  }
+  .choice-sub{
+    color:var(--ink-soft);
+    font-size:0.92rem;
+    margin-bottom:14px;
+  }
+  .choice-buttons{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .choice-btn{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    width:100%;
+    text-align:left;
+    background:var(--surface);
+    border:1.5px solid var(--border);
+    border-radius:14px;
+    padding:16px;
+    cursor:pointer;
+    color:var(--ink);
+    transition:border-color .15s ease, transform .12s ease;
+  }
+  .choice-btn:hover{ border-color:var(--accent); transform:translateY(-1px); }
+  .choice-btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .choice-btn .choice-icon{
+    flex:0 0 auto;
+    width:42px; height:42px;
+    border-radius:50%;
+    background:var(--tag-meeting-bg);
+    color:var(--accent);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .choice-btn .choice-icon svg{ width:20px; height:20px; }
+  .choice-btn strong{ display:block; font-size:0.98rem; font-weight:600; }
+  .choice-btn small{ display:block; font-size:0.8rem; color:var(--ink-soft); margin-top:2px; font-weight:400; }
+  .choice-btn:disabled{ opacity:0.45; cursor:not-allowed; }
+  .choice-btn:disabled:hover{ border-color:var(--border); transform:none; }
+
+  /* ---------- RESULT VIEW ---------- */
+  .back-row{
+    display:flex;
+    align-items:center;
+  }
+  .back-btn{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background:none;
+    border:none;
+    color:var(--ink-soft);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.75rem;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    cursor:pointer;
+    padding:6px 2px;
+  }
+  .back-btn:hover{ color:var(--accent); }
+  .back-btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .back-btn svg{ width:15px; height:15px; }
+
+  .identity-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:20px;
+    box-shadow:0 1px 3px var(--shadow);
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .identity-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .client-name{
+    font-family:'Fraunces', Georgia, serif;
+    font-weight:600;
+    font-size:clamp(1.5rem,6vw,1.85rem);
+    line-height:1.1;
+    text-wrap:balance;
+  }
+  .status-pill{
+    flex:0 0 auto;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.66rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    padding:5px 10px;
+    border-radius:99px;
+    white-space:nowrap;
+  }
+  .status-pill.active{ background:var(--tag-meeting-bg); color:var(--tag-meeting); }
+  .status-pill.hot{ background:var(--tag-crm-bg); color:var(--tag-crm); }
+  .status-pill.qualified{ background:var(--tag-email-bg); color:var(--tag-email); }
+
+  .sector-line{ color:var(--ink-soft); font-size:0.92rem; }
+
+  .contact-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:6px;
+    padding-top:14px;
+    border-top:1px solid var(--border);
+  }
+  .avatar{
+    width:38px; height:38px;
+    border-radius:50%;
+    background:var(--surface-2);
+    color:var(--ink);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.8rem;
+    font-weight:500;
+    flex:0 0 auto;
+  }
+  .contact-meta strong{ display:block; font-size:0.96rem; font-weight:600; }
+  .contact-meta span{ display:block; font-size:0.82rem; color:var(--ink-soft); }
+
+  .last-contact{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    color:var(--ink-faint);
+    margin-top:2px;
+  }
+
+  .section{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:18px;
+    display:flex;
+    flex-direction:column;
+    gap:13px;
+  }
+  .section-head{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.66rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    padding:4px 9px;
+    border-radius:6px;
+  }
+  .tag.email{ background:var(--tag-email-bg); color:var(--tag-email); }
+  .tag.meeting{ background:var(--tag-meeting-bg); color:var(--tag-meeting); }
+  .tag.crm{ background:var(--tag-crm-bg); color:var(--tag-crm); }
+  .section-head h3{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:0.98rem;
+    font-weight:600;
+  }
+
+  .email-item{
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+    padding-top:12px;
+    border-top:1px solid var(--border);
+  }
+  .email-item:first-of-type{ border-top:none; padding-top:0; }
+  .email-meta{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.7rem;
+    color:var(--ink-faint);
+  }
+  .email-subject{ font-weight:600; font-size:0.94rem; }
+  .email-body{ font-size:0.88rem; color:var(--ink-soft); line-height:1.5; }
+
+  .meeting-title{ font-weight:600; font-size:0.94rem; }
+  .meeting-meta{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.7rem;
+    color:var(--ink-faint);
+  }
+  .meeting-summary{ font-size:0.89rem; color:var(--ink-soft); line-height:1.55; }
+  .actions-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.66rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    margin-top:2px;
+  }
+  .actions-list{
+    list-style:none;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .actions-list li{
+    display:flex;
+    gap:8px;
+    font-size:0.88rem;
+    color:var(--ink);
+    line-height:1.4;
+  }
+  .actions-list li svg{ width:15px; height:15px; flex:0 0 auto; margin-top:2px; color:var(--tag-meeting); }
+
+  .crm-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px 16px;
+  }
+  .crm-field span{ display:block; font-family:'IBM Plex Mono', monospace; font-size:0.66rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-faint); margin-bottom:3px; }
+  .crm-field strong{ font-size:0.9rem; font-weight:600; }
+  .crm-note{ font-size:0.88rem; color:var(--ink-soft); line-height:1.5; }
+  .crm-next{ font-size:0.88rem; color:var(--ink); line-height:1.5; padding-top:10px; border-top:1px solid var(--border); }
+  .crm-next strong{ color:var(--tag-crm); }
+
+  .synth-panel{
+    background:linear-gradient(180deg, var(--surface) 0%, var(--surface) 100%);
+    background-color:var(--surface);
+    border:1.5px solid var(--accent);
+    border-radius:16px;
+    padding:19px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .synth-head{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--accent);
+  }
+  .synth-head svg{ width:15px; height:15px; }
+  .synth-head-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .speak-btn{
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    color:var(--ink);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    padding:6px 11px;
+    border-radius:99px;
+    cursor:pointer;
+    transition:border-color .15s ease;
+  }
+  .speak-btn:hover{ border-color:var(--accent); }
+  .speak-btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .speak-btn svg{ width:13px; height:13px; }
+  .speak-btn.speaking{ color:var(--accent); border-color:var(--accent); }
+  .synth-list{
+    list-style:none;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .synth-list li{
+    display:flex;
+    gap:9px;
+    font-size:0.92rem;
+    line-height:1.5;
+  }
+  .synth-list li::before{
+    content:"";
+    width:5px; height:5px;
+    border-radius:50%;
+    background:var(--accent);
+    flex:0 0 auto;
+    margin-top:8px;
+  }
+  .objective{
+    font-size:0.92rem;
+    line-height:1.5;
+    padding-top:10px;
+    border-top:1px solid var(--border);
+  }
+  .objective strong{ color:var(--accent); }
+
+  .not-found{
+    text-align:center;
+    color:var(--ink-soft);
+    font-size:0.88rem;
+    padding:8px 10px;
+  }
+
+  .footer-note{
+    text-align:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.66rem;
+    letter-spacing:0.05em;
+    color:var(--ink-faint);
+    padding-top:6px;
+  }
+</style>
+
+<div class="app">
+
+  <div class="topbar">
+    <span class="brand-mark">Assistant RDV</span>
+    <span class="demo-badge">Mode démo</span>
+  </div>
+
+  <!-- ============ CAPTURE VIEW ============ -->
+  <section id="view-capture">
+    <h1 class="wordmark">Brief-<em>RDV</em></h1>
+    <p class="tagline">Dites le nom du client et de votre interlocuteur. L'assistant rassemble les mails, le dernier compte-rendu et vos notes CRM avant le rendez-vous.</p>
+
+    <div class="mic-zone">
+      <button class="mic-btn" id="micBtn" type="button" aria-pressed="false" aria-label="Démarrer la dictée">
+        <svg id="micIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3.5 3.5 0 0 0 3.5-3.5v-5a3.5 3.5 0 0 0-7 0v5A3.5 3.5 0 0 0 12 15Z"/><path d="M6.5 11a5.5 5.5 0 0 0 11 0"/><path d="M12 16.5V20"/><path d="M9 20h6"/></svg>
+      </button>
+      <div class="mic-hint" id="micHint" aria-live="polite">Touchez pour dicter</div>
+      <p class="transcript" id="transcript" aria-live="polite"></p>
+      <p class="no-speech-note" id="noSpeechNote" hidden>La dictée vocale n'est pas disponible sur ce navigateur — saisissez les noms ci-dessous.</p>
+    </div>
+
+    <div class="field-card">
+      <div class="field">
+        <label for="clientInput">Client</label>
+        <input id="clientInput" type="text" placeholder="ex. Dupont Industries" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="contactInput">Interlocuteur</label>
+        <input id="contactInput" type="text" placeholder="ex. Marie Lefèvre" autocomplete="off">
+      </div>
+      <p class="match-status" id="matchStatus"></p>
+    </div>
+
+    <div>
+      <p class="chips-label">Essayer avec un compte de démo</p>
+      <div class="chips" id="chips"></div>
+    </div>
+
+    <button class="generate-btn" id="generateBtn" type="button" disabled>
+      <span>Générer le brief</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+    </button>
+  </section>
+
+  <!-- ============ LOADING VIEW ============ -->
+  <section id="view-loading" hidden>
+    <div class="loading-wrap">
+      <p class="loading-title" id="loadingTitle">Préparation du brief…</p>
+      <div class="log" id="log" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- ============ CHOICE VIEW ============ -->
+  <section id="view-choice" hidden>
+    <div class="choice-wrap">
+      <p class="choice-title">Brief prêt — <span id="choiceClientName"></span></p>
+      <p class="choice-sub">Comment souhaitez-vous le recevoir ?</p>
+      <div class="choice-buttons">
+        <button class="choice-btn" id="choiceVoiceBtn" type="button">
+          <span class="choice-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18 6a9 9 0 0 1 0 12"/></svg></span>
+          <span><strong>Réponse vocale</strong><small>La synthèse est lue à voix haute</small></span>
+        </button>
+        <button class="choice-btn" id="choiceTextBtn" type="button">
+          <span class="choice-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h8l4 4v14H7z"/><path d="M14 3v5h4"/><path d="M9 12h6M9 16h6"/></svg></span>
+          <span><strong>Réponse écrite</strong><small>À l'écran uniquement, en silence</small></span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RESULT VIEW ============ -->
+  <section id="view-result" hidden>
+    <div class="back-row">
+      <button class="back-btn" id="backBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+        Nouveau brief
+      </button>
+    </div>
+    <div id="resultContent"></div>
+    <p class="footer-note">Brief-RDV — démonstration, données simulées</p>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var CLIENTS = [
+    {
+      id:"dupont",
+      name:"Dupont Industries",
+      sector:"Sous-traitance mécanique de précision",
+      status:{label:"Prospect qualifié", tone:"qualified"},
+      contact:{name:"Marie Lefèvre", role:"Directrice des Achats"},
+      lastContact:"03/09/2026",
+      emails:[
+        {date:"03/09/2026", from:"Marie Lefèvre", subject:"Cahier des charges — lot usinage 2027",
+         body:"« Merci pour la proposition. Le comité achats souhaite un point sur les délais de mise en œuvre avant le 20/09. Pouvez-vous détailler la phase de migration des données historiques ? »"},
+        {date:"22/08/2026", from:"Vous", subject:"Proposition — Automatisation reporting achats",
+         body:"« Bonjour Marie, voici la proposition consolidée suite à notre échange du 15/08. Le chiffrage intègre les 3 modules discutés (reporting, relance fournisseurs, tableau de bord). »"}
+      ],
+      meeting:{
+        date:"15/08/2026", title:"Point de cadrage — Automatisation Achats",
+        participants:"Marie Lefèvre (Dupont Industries), Vous",
+        summary:"Cadrage des besoins : automatisation du reporting achats mensuel, relance automatique des fournisseurs en retard, et tableau de bord fournisseurs. Budget évoqué : 15 000 – 20 000 €. Marie souligne une contrainte forte sur la reprise des données historiques SAP.",
+        actions:["Envoyer une proposition chiffrée avant le 22/08","Identifier un interlocuteur technique côté Dupont pour la reprise SAP","Prévoir une démo du module de relance fournisseurs"]
+      },
+      crm:{
+        stage:"Proposition envoyée", budget:"15 000 – 20 000 €", lastContact:"03/09/2026",
+        notes:"Décideur = comité achats (3 personnes), cycle de décision estimé à 6–8 semaines. Sensible au ROI chiffré et à la fiabilité de la reprise de données.",
+        nextSteps:"Relancer avant le 20/09 avec une réponse claire sur le délai de migration SAP."
+      },
+      synthesis:[
+        "Marie attend un point précis sur les délais de mise en œuvre, en particulier la migration des données SAP — préparez un calendrier détaillé.",
+        "Le comité achats décide collégialement : appuyez le ROI chiffré, notamment le gain de temps sur les relances fournisseurs.",
+        "Budget cadré à 15–20 k€ : la proposition du 22/08 reste dans la fourchette, pas de renégociation nécessaire a priori.",
+        "Prochaine étape naturelle : proposer une démonstration live du module de relance fournisseurs."
+      ],
+      objective:"Lever le point de blocage sur la migration SAP et obtenir une date de comité de décision."
+    },
+    {
+      id:"meunier",
+      name:"Groupe Meunier",
+      sector:"Distribution alimentaire (grossiste)",
+      status:{label:"Client actif depuis 2023", tone:"active"},
+      contact:{name:"Thomas Bernard", role:"Directeur des Systèmes d'Information"},
+      lastContact:"08/09/2026",
+      emails:[
+        {date:"08/09/2026", from:"Thomas Bernard", subject:"Anomalie sur le flux de commandes",
+         body:"« Depuis mardi, on observe des doublons sur les commandes synchronisées avec notre ERP. Ça bloque l'équipe logistique. Peut-on avoir un point rapide cette semaine ? »"},
+        {date:"30/08/2026", from:"Vous", subject:"Bilan trimestriel — T3 2026",
+         body:"« Bonjour Thomas, ci-joint le bilan d'usage du module de synchronisation ERP pour le T3 : 12 400 commandes traitées, taux d'erreur 0,3 %. »"}
+      ],
+      meeting:{
+        date:"10/07/2026", title:"Revue trimestrielle — Synchronisation ERP",
+        participants:"Thomas Bernard (Groupe Meunier), Vous",
+        summary:"Bilan positif du déploiement : réduction de 40 % du temps de saisie manuelle. Thomas évoque un projet d'extension vers la gestion des retours fournisseurs pour 2027. Budget non encore validé en interne.",
+        actions:["Envoyer le bilan chiffré du T3","Préparer une esquisse fonctionnelle du module retours fournisseurs","Fixer un point de suivi en septembre"]
+      },
+      crm:{
+        stage:"Client actif — upsell en cours", budget:"8 400 €/an (contrat), +6 000 €/an estimé (extension)", lastContact:"08/09/2026",
+        notes:"Client satisfait mais vigilant sur la fiabilité technique (SLA). Bon relais interne : Thomas est sponsor du projet d'extension.",
+        nextSteps:"Traiter l'anomalie de doublons en priorité avant d'aborder l'extension retours fournisseurs."
+      },
+      synthesis:[
+        "Un incident technique est ouvert (doublons de commandes) — à traiter en premier pour ne pas fragiliser la confiance avant de parler extension.",
+        "Le projet d'extension vers les retours fournisseurs est évoqué depuis juillet mais le budget n'est pas encore validé côté Meunier.",
+        "Thomas est un sponsor interne engagé : un chiffrage clair de l'extension pourrait débloquer une décision rapide.",
+        "Le bilan T3 (12 400 commandes, 0,3 % d'erreur) est un bon argument à rappeler pour asseoir la confiance."
+      ],
+      objective:"Rassurer sur l'incident en cours et transformer la discussion retours fournisseurs en devis formel."
+    },
+    {
+      id:"lumina",
+      name:"Lumina Retail",
+      sector:"Enseigne mode — 12 boutiques",
+      status:{label:"Prospect chaud", tone:"hot"},
+      contact:{name:"Sophie Rousseau", role:"Directrice Marketing"},
+      lastContact:"05/09/2026",
+      emails:[
+        {date:"05/09/2026", from:"Sophie Rousseau", subject:"Retour comité de direction",
+         body:"« Le CODIR est favorable sur le principe. Reste à clarifier le délai de déploiement avant les soldes de janvier et le niveau d'accompagnement au démarrage. »"},
+        {date:"18/08/2026", from:"Vous", subject:"Démo assistant IA — synthèse des cas d'usage",
+         body:"« Bonjour Sophie, suite à la démo de jeudi, voici le récapitulatif des cas d'usage retenus : synthèse automatique des avis clients et alertes tendances par boutique. »"}
+      ],
+      meeting:{
+        date:"14/08/2026", title:"Démo produit — Assistant IA retail",
+        participants:"Sophie Rousseau (Lumina Retail), 2 responsables boutique, Vous",
+        summary:"Démo très bien reçue, forte adhésion des responsables boutique présents. Sophie insiste sur l'échéance des soldes de janvier comme date de mise en production cible. Question posée sur la formation des équipes en magasin.",
+        actions:["Envoyer le récapitulatif des cas d'usage retenus","Préparer un planning de déploiement avec jalon janvier","Chiffrer un accompagnement formation boutiques"]
+      },
+      crm:{
+        stage:"Négociation — décision imminente", budget:"25 000 € déploiement + 4 000 €/an accompagnement", lastContact:"05/09/2026",
+        notes:"CODIR favorable. Point bloquant : délai avant les soldes de janvier (contrainte non négociable) et plan de formation des 12 boutiques.",
+        nextSteps:"Envoyer un planning de déploiement engageant avant les soldes, avec option formation."
+      },
+      synthesis:[
+        "Le CODIR a validé le principe — il ne reste que deux points à sécuriser : le planning et la formation des boutiques.",
+        "L'échéance des soldes de janvier est une contrainte non négociable pour Sophie : structurez votre proposition autour de cette date.",
+        "La démo du 14/08 a créé une forte adhésion terrain (responsables boutique) — un atout à rappeler pour rassurer sur l'adoption.",
+        "Anticipez la question du coût de formation : elle n'a pas encore été chiffrée formellement."
+      ],
+      objective:"Sécuriser un planning de déploiement tenable avant les soldes de janvier pour déclencher la signature."
+    },
+    {
+      id:"novatech",
+      name:"NovaTech Solutions",
+      sector:"Éditeur SaaS RH",
+      status:{label:"Prospect qualifié", tone:"qualified"},
+      contact:{name:"Karim Haddad", role:"CEO"},
+      lastContact:"01/09/2026",
+      emails:[
+        {date:"01/09/2026", from:"Karim Haddad", subject:"Comparatif concurrentiel",
+         body:"« On regarde aussi deux autres solutions en parallèle. Ce qui nous ferait pencher pour vous : une intégration native avec notre outil de support client. C'est faisable ? »"},
+        {date:"05/08/2026", from:"Vous", subject:"Suite à notre échange — cas d'usage IA support",
+         body:"« Bonjour Karim, merci pour l'échange. Je vous confirme que l'intégration avec Zendesk est disponible en standard. »"}
+      ],
+      meeting:{
+        date:"28/07/2026", title:"Découverte des besoins — NovaTech",
+        participants:"Karim Haddad (NovaTech Solutions), Vous",
+        summary:"Karim cherche à automatiser la pré-qualification des tickets support avant intervention humaine. Forte sensibilité au time-to-value : il souhaite un pilote opérationnel sous 4 semaines. Budget encore flou, dépendant du ROI démontré sur le pilote.",
+        actions:["Confirmer la compatibilité Zendesk","Proposer un cadrage de pilote sur 4 semaines","Envoyer 2 références clients comparables (SaaS B2B)"]
+      },
+      crm:{
+        stage:"Évaluation comparative — concurrence active", budget:"Non cadré (ordre de grandeur 10 000 €)", lastContact:"01/09/2026",
+        notes:"Deux concurrents identifiés en lice. Facteur différenciant potentiel : intégration Zendesk native. CEO impliqué directement = cycle de décision rapide si convaincu.",
+        nextSteps:"Confirmer l'intégration Zendesk et proposer un pilote engageant sous 4 semaines."
+      },
+      synthesis:[
+        "NovaTech compare activement deux concurrents : l'intégration native Zendesk peut être le facteur différenciant à mettre en avant dès l'ouverture.",
+        "Karim, CEO, pilote lui-même la décision : un cycle de vente court est possible si la valeur est démontrée rapidement.",
+        "Un pilote de 4 semaines a été évoqué en juillet mais n'a pas encore été formellement proposé — c'est le point à débloquer.",
+        "Les références clients comparables demandées le 28/07 n'ont pas encore été envoyées."
+      ],
+      objective:"Transformer l'intérêt en pilote engageant de 4 semaines en s'appuyant sur l'intégration Zendesk."
+    },
+    {
+      id:"atlantique",
+      name:"Atlantique Logistique",
+      sector:"Transport et logistique",
+      status:{label:"Client actif depuis 2021", tone:"active"},
+      contact:{name:"Julien Petit", role:"Responsable Opérations"},
+      lastContact:"09/09/2026",
+      emails:[
+        {date:"09/09/2026", from:"Julien Petit", subject:"Renouvellement contrat 2027",
+         body:"« L'échéance approche. On est globalement satisfaits mais on aimerait revoir le prix à la baisse au vu du volume pris depuis 2 ans. Peut-on en discuter ? »"},
+        {date:"20/07/2026", from:"Vous", subject:"Nouveau module — prévision de charge",
+         body:"« Bonjour Julien, je vous propose une présentation du nouveau module de prévision de charge, qui pourrait compléter votre usage actuel. »"}
+      ],
+      meeting:{
+        date:"12/06/2026", title:"Suivi annuel — Atlantique Logistique",
+        participants:"Julien Petit (Atlantique Logistique), Vous",
+        summary:"Usage stable et satisfaisant depuis 2021. Julien mentionne une croissance de volume de +35 % sur les deux dernières années, ce qui questionne le modèle tarifaire actuel. Intérêt exprimé pour le futur module de prévision de charge, sans urgence.",
+        actions:["Préparer une simulation tarifaire tenant compte du volume 2026","Envoyer une présentation du module de prévision de charge","Planifier le point de renouvellement en septembre"]
+      },
+      crm:{
+        stage:"Renouvellement — négociation tarifaire", budget:"22 000 €/an (contrat actuel), renégociation attendue", lastContact:"09/09/2026",
+        notes:"Client historique fidèle depuis 2021, faible risque de churn mais demande légitime sur le prix au vu de la croissance de volume (+35 %).",
+        nextSteps:"Préparer une proposition de renouvellement avec palier tarifaire volume et option module prévision de charge."
+      },
+      synthesis:[
+        "Julien demande explicitement une révision tarifaire à la baisse, justifiée par une hausse de volume de +35 % depuis 2021 — anticipez une grille par palier.",
+        "Le renouvellement 2027 arrive à échéance : c'est le sujet prioritaire de ce rendez-vous, avant toute autre proposition.",
+        "Le module de prévision de charge, présenté en juillet, reste un levier d'upsell mais sans urgence exprimée par le client.",
+        "Relation ancienne et satisfaite : le risque n'est pas la perte du client mais la marge, à équilibrer par la valeur du nouveau module."
+      ],
+      objective:"Sécuriser le renouvellement avec une offre tarifaire par palier, en associant le module prévision de charge."
+    }
+  ];
+
+  function normalize(s){
+    return (s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+  }
+  function tokens(s){
+    return normalize(s).replace(/[^a-z0-9\s]/g," ").split(/\s+/).filter(function(w){ return w.length>=3; });
+  }
+  function findClient(text){
+    var tset = {};
+    tokens(text).forEach(function(t){ tset[t]=true; });
+    var best=null, bestScore=0;
+    CLIENTS.forEach(function(c){
+      var nameTokens = tokens(c.name+" "+c.contact.name);
+      var score=0;
+      nameTokens.forEach(function(t){ if(tset[t]) score++; });
+      if(score>bestScore){ bestScore=score; best=c; }
+    });
+    return bestScore>0 ? best : null;
+  }
+
+  var clientInput = document.getElementById("clientInput");
+  var contactInput = document.getElementById("contactInput");
+  var matchStatus = document.getElementById("matchStatus");
+  var generateBtn = document.getElementById("generateBtn");
+  var chipsEl = document.getElementById("chips");
+  var transcriptEl = document.getElementById("transcript");
+  var micHint = document.getElementById("micHint");
+  var micBtn = document.getElementById("micBtn");
+  var noSpeechNote = document.getElementById("noSpeechNote");
+
+  var viewCapture = document.getElementById("view-capture");
+  var viewLoading = document.getElementById("view-loading");
+  var viewChoice = document.getElementById("view-choice");
+  var viewResult = document.getElementById("view-result");
+  var logEl = document.getElementById("log");
+  var resultContent = document.getElementById("resultContent");
+  var backBtn = document.getElementById("backBtn");
+  var choiceClientName = document.getElementById("choiceClientName");
+  var choiceVoiceBtn = document.getElementById("choiceVoiceBtn");
+  var choiceTextBtn = document.getElementById("choiceTextBtn");
+
+  var currentMatch = null;
+  var pendingClient = null;
+
+  var TTS_SUPPORTED = "speechSynthesis" in window;
+  if(!TTS_SUPPORTED){
+    choiceVoiceBtn.disabled = true;
+    choiceVoiceBtn.querySelector("small").textContent = "Non disponible sur ce navigateur";
+  }
+
+  CLIENTS.forEach(function(c){
+    var chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "chip";
+    chip.textContent = c.name;
+    chip.addEventListener("click", function(){
+      clientInput.value = c.name;
+      contactInput.value = c.contact.name;
+      updateMatch();
+      clientInput.focus();
+    });
+    chipsEl.appendChild(chip);
+  });
+
+  function updateMatch(){
+    var combined = clientInput.value + " " + contactInput.value;
+    if(!clientInput.value.trim() && !contactInput.value.trim()){
+      currentMatch = null;
+      matchStatus.textContent = "";
+      matchStatus.className = "match-status";
+      generateBtn.disabled = true;
+      return;
+    }
+    var found = findClient(combined);
+    currentMatch = found;
+    if(found){
+      matchStatus.textContent = "✓ Fiche trouvée — " + found.name;
+      matchStatus.className = "match-status ok";
+      generateBtn.disabled = false;
+    } else {
+      matchStatus.textContent = "Aucune fiche correspondante pour le moment";
+      matchStatus.className = "match-status warn";
+      generateBtn.disabled = false;
+    }
+  }
+  clientInput.addEventListener("input", updateMatch);
+  contactInput.addEventListener("input", updateMatch);
+
+  // ---- Speech recognition ----
+  var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var recognition = null;
+  var listening = false;
+
+  if(SpeechRecognition){
+    recognition = new SpeechRecognition();
+    recognition.lang = "fr-FR";
+    recognition.interimResults = true;
+    recognition.continuous = false;
+
+    recognition.onstart = function(){
+      listening = true;
+      micBtn.classList.add("listening");
+      micBtn.setAttribute("aria-pressed","true");
+      micHint.textContent = "Je vous écoute…";
+      micHint.classList.add("live");
+      transcriptEl.textContent = "";
+      transcriptEl.classList.remove("filled");
+    };
+    recognition.onresult = function(event){
+      var text = "";
+      for(var i=0;i<event.results.length;i++){
+        text += event.results[i][0].transcript;
+      }
+      transcriptEl.textContent = "“" + text + "”";
+      transcriptEl.classList.add("filled");
+      var found = findClient(text);
+      if(found){
+        clientInput.value = found.name;
+        contactInput.value = found.contact.name;
+        updateMatch();
+      }
+    };
+    var ERROR_MESSAGES = {
+      "not-allowed": "Micro refusé — autorisez-le dans les réglages du site puis réessayez",
+      "service-not-allowed": "Micro bloqué dans cette fenêtre — saisissez les noms ci-dessous",
+      "no-speech": "Je n'ai rien entendu — réessayez",
+      "audio-capture": "Aucun micro détecté sur cet appareil",
+      "network": "Connexion réseau requise pour la dictée"
+    };
+    recognition.onerror = function(event){
+      stopListening();
+      var code = event && event.error;
+      micHint.textContent = ERROR_MESSAGES[code] || "Micro indisponible ici — saisissez les noms";
+    };
+    recognition.onend = function(){
+      stopListening();
+    };
+
+    function stopListening(){
+      listening = false;
+      micBtn.classList.remove("listening");
+      micBtn.setAttribute("aria-pressed","false");
+      micHint.classList.remove("live");
+      if(micHint.textContent === "Je vous écoute…" || micHint.textContent === "Connexion au micro…"){
+        micHint.textContent = "Touchez pour dicter";
+      }
+    }
+
+    function attemptStart(){
+      micHint.textContent = "Connexion au micro…";
+      micHint.classList.add("live");
+      if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+        navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
+          stream.getTracks().forEach(function(t){ t.stop(); });
+          try{
+            recognition.start();
+          } catch(e){
+            micHint.classList.remove("live");
+            micHint.textContent = "Micro indisponible ici — saisissez les noms";
+          }
+        }).catch(function(err){
+          micHint.classList.remove("live");
+          var name = err && err.name;
+          if(name === "NotAllowedError" || name === "SecurityError"){
+            micHint.textContent = "Micro bloqué dans cette fenêtre — saisissez les noms ci-dessous";
+          } else if(name === "NotFoundError"){
+            micHint.textContent = "Aucun micro détecté sur cet appareil";
+          } else {
+            micHint.textContent = "Micro indisponible ici — saisissez les noms";
+          }
+        });
+      } else {
+        try{
+          recognition.start();
+        } catch(e){
+          micHint.classList.remove("live");
+          micHint.textContent = "Micro indisponible ici — saisissez les noms";
+        }
+      }
+    }
+
+    micBtn.addEventListener("click", function(){
+      if(listening){
+        recognition.stop();
+      } else {
+        attemptStart();
+      }
+    });
+  } else {
+    micBtn.hidden = true;
+    micHint.hidden = true;
+    noSpeechNote.hidden = false;
+  }
+
+  // ---- Loading sequence ----
+  var LOG_STEPS = [
+    {src:"Microsoft 365 (mails)", tag:"email"},
+    {src:"Noota (comptes-rendus)", tag:"meeting"},
+    {src:"CRM · Google Sheets", tag:"crm"},
+    {src:"Synthèse par l'assistant", tag:"ai"}
+  ];
+
+  function resultCountFor(step, client){
+    if(step.tag==="email") return client.emails.length + " échange" + (client.emails.length>1?"s":"") + " trouvé" + (client.emails.length>1?"s":"");
+    if(step.tag==="meeting") return "1 compte-rendu trouvé";
+    if(step.tag==="crm") return "fiche client localisée";
+    return "3 points clés identifiés";
+  }
+
+  function runLoading(client, done){
+    logEl.innerHTML = "";
+    var lines = LOG_STEPS.map(function(step){
+      var line = document.createElement("div");
+      line.className = "log-line";
+      var mark = document.createElement("span");
+      mark.className = "mark";
+      var src = document.createElement("span");
+      src.className = "src";
+      src.textContent = "Connexion — " + step.src;
+      var result = document.createElement("span");
+      result.className = "result";
+      line.appendChild(mark);
+      var textWrap = document.createElement("span");
+      textWrap.appendChild(src);
+      textWrap.appendChild(document.createElement("br"));
+      textWrap.appendChild(result);
+      line.appendChild(textWrap);
+      logEl.appendChild(line);
+      return {line:line, mark:mark, result:result, step:step};
+    });
+
+    var i = 0;
+    function step(){
+      if(i >= lines.length){
+        setTimeout(done, 450);
+        return;
+      }
+      var current = lines[i];
+      current.line.classList.add("show");
+      setTimeout(function(){
+        current.mark.textContent = "✓";
+        current.result.textContent = resultCountFor(current.step, client);
+        current.line.classList.add("done");
+        i++;
+        step();
+      }, 480);
+    }
+    step();
+  }
+
+  // ---- Result rendering ----
+  function statusToneClass(tone){
+    if(tone==="active") return "active";
+    if(tone==="hot") return "hot";
+    return "qualified";
+  }
+  function initials(name){
+    return name.split(" ").map(function(w){return w[0];}).slice(0,2).join("").toUpperCase();
+  }
+
+  function renderResult(client){
+    var html = "";
+    html += '<div class="identity-card">';
+    html += '  <div class="identity-top">';
+    html += '    <h2 class="client-name">' + client.name + '</h2>';
+    html += '    <span class="status-pill ' + statusToneClass(client.status.tone) + '">' + client.status.label + '</span>';
+    html += '  </div>';
+    html += '  <p class="sector-line">' + client.sector + '</p>';
+    html += '  <div class="contact-row">';
+    html += '    <div class="avatar">' + initials(client.contact.name) + '</div>';
+    html += '    <div class="contact-meta"><strong>' + client.contact.name + '</strong><span>' + client.contact.role + '</span></div>';
+    html += '  </div>';
+    html += '  <p class="last-contact">Dernier contact — ' + client.lastContact + '</p>';
+    html += '</div>';
+
+    html += '<div class="section">';
+    html += '  <div class="section-head"><span class="tag email">Mail</span><h3>Derniers échanges — Microsoft 365</h3></div>';
+    client.emails.forEach(function(e){
+      html += '<div class="email-item">';
+      html += '  <div class="email-meta"><span>' + e.from + '</span><span>' + e.date + '</span></div>';
+      html += '  <div class="email-subject">' + e.subject + '</div>';
+      html += '  <div class="email-body">' + e.body + '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+
+    html += '<div class="section">';
+    html += '  <div class="section-head"><span class="tag meeting">Réunion</span><h3>Dernier compte-rendu — Noota</h3></div>';
+    html += '  <div>';
+    html += '    <div class="meeting-title">' + client.meeting.title + '</div>';
+    html += '    <div class="meeting-meta">' + client.meeting.date + ' · ' + client.meeting.participants + '</div>';
+    html += '  </div>';
+    html += '  <p class="meeting-summary">' + client.meeting.summary + '</p>';
+    html += '  <div>';
+    html += '    <p class="actions-label">Actions convenues</p>';
+    html += '    <ul class="actions-list">';
+    client.meeting.actions.forEach(function(a){
+      html += '<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>' + a + '</span></li>';
+    });
+    html += '    </ul>';
+    html += '  </div>';
+    html += '</div>';
+
+    html += '<div class="section">';
+    html += '  <div class="section-head"><span class="tag crm">CRM</span><h3>Notes CRM — Google Sheets</h3></div>';
+    html += '  <div class="crm-grid">';
+    html += '    <div class="crm-field"><span>Étape</span><strong>' + client.crm.stage + '</strong></div>';
+    html += '    <div class="crm-field"><span>Budget</span><strong>' + client.crm.budget + '</strong></div>';
+    html += '  </div>';
+    html += '  <p class="crm-note">' + client.crm.notes + '</p>';
+    html += '  <p class="crm-next"><strong>Prochaine étape — </strong>' + client.crm.nextSteps + '</p>';
+    html += '</div>';
+
+    html += '<div class="synth-panel">';
+    html += '  <div class="synth-head-row">';
+    html += '    <div class="synth-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v2M12 19v2M5 5l1.5 1.5M17.5 17.5 19 19M3 12h2M19 12h2M5 19l1.5-1.5M17.5 6.5 19 5"/><circle cx="12" cy="12" r="3.2"/></svg>Synthèse pour ce rendez-vous</div>';
+    if(TTS_SUPPORTED){
+      html += '    <button class="speak-btn" id="speakBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg><span id="speakBtnLabel">Écouter</span></button>';
+    }
+    html += '  </div>';
+    html += '  <ul class="synth-list">';
+    client.synthesis.forEach(function(s){
+      html += '<li>' + s + '</li>';
+    });
+    html += '  </ul>';
+    html += '  <p class="objective"><strong>Objectif suggéré — </strong>' + client.objective + '</p>';
+    html += '</div>';
+
+    resultContent.innerHTML = html;
+  }
+
+  function showView(name){
+    viewCapture.hidden = name !== "capture";
+    viewLoading.hidden = name !== "loading";
+    viewChoice.hidden = name !== "choice";
+    viewResult.hidden = name !== "result";
+    window.scrollTo(0,0);
+  }
+
+  // ---- Speech synthesis (read the summary aloud) ----
+  var speaking = false;
+  function synthesisSpeech(client){
+    var parts = [
+      "Brief pour " + client.name + ", " + client.status.label.toLowerCase() + ".",
+      "Interlocuteur : " + client.contact.name + ", " + client.contact.role + ".",
+      "Points clés pour ce rendez-vous."
+    ];
+    client.synthesis.forEach(function(s){ parts.push(s); });
+    parts.push("Objectif suggéré : " + client.objective);
+    return parts.join(" ");
+  }
+  function setSpeakBtnState(isSpeaking){
+    var btn = document.getElementById("speakBtn");
+    var label = document.getElementById("speakBtnLabel");
+    if(!btn) return;
+    speaking = isSpeaking;
+    btn.classList.toggle("speaking", isSpeaking);
+    if(label) label.textContent = isSpeaking ? "Arrêter la lecture" : "Écouter";
+  }
+  function speakSummary(client){
+    if(!TTS_SUPPORTED) return;
+    window.speechSynthesis.cancel();
+    var utter = new SpeechSynthesisUtterance(synthesisSpeech(client));
+    utter.lang = "fr-FR";
+    var voices = window.speechSynthesis.getVoices();
+    var frVoice = voices.find(function(v){ return v.lang && v.lang.toLowerCase().indexOf("fr") === 0; });
+    if(frVoice) utter.voice = frVoice;
+    utter.onstart = function(){ setSpeakBtnState(true); };
+    utter.onend = function(){ setSpeakBtnState(false); };
+    utter.onerror = function(){ setSpeakBtnState(false); };
+    window.speechSynthesis.speak(utter);
+  }
+  function toggleSpeak(client){
+    if(speaking){
+      window.speechSynthesis.cancel();
+      setSpeakBtnState(false);
+    } else {
+      speakSummary(client);
+    }
+  }
+
+  function goToChoice(client){
+    pendingClient = client;
+    choiceClientName.textContent = client.name;
+    showView("choice");
+  }
+
+  function proceedToResult(client, wantVoice){
+    if(TTS_SUPPORTED) window.speechSynthesis.cancel();
+    renderResult(client);
+    showView("result");
+    var speakBtn = document.getElementById("speakBtn");
+    if(speakBtn){
+      speakBtn.addEventListener("click", function(){ toggleSpeak(client); });
+    }
+    if(wantVoice && TTS_SUPPORTED){
+      setTimeout(function(){ speakSummary(client); }, 350);
+    }
+  }
+
+  choiceVoiceBtn.addEventListener("click", function(){
+    if(!pendingClient || choiceVoiceBtn.disabled) return;
+    proceedToResult(pendingClient, true);
+  });
+  choiceTextBtn.addEventListener("click", function(){
+    if(!pendingClient) return;
+    proceedToResult(pendingClient, false);
+  });
+
+  generateBtn.addEventListener("click", function(){
+    var combined = clientInput.value + " " + contactInput.value;
+    var found = findClient(combined) || currentMatch;
+    if(!found){
+      resultContent.innerHTML = '<p class="not-found">Aucune fiche ne correspond à « ' + (clientInput.value || contactInput.value) + ' ».<br>Essayez l’un des comptes de démonstration proposés.</p>';
+      showView("result");
+      return;
+    }
+    document.getElementById("loadingTitle").textContent = "Préparation du brief — " + found.name;
+    showView("loading");
+    runLoading(found, function(){
+      goToChoice(found);
+    });
+  });
+
+  backBtn.addEventListener("click", function(){
+    if(TTS_SUPPORTED) window.speechSynthesis.cancel();
+    showView("capture");
+    transcriptEl.textContent = "";
+    transcriptEl.classList.remove("filled");
+  });
+
+  updateMatch();
+})();
+</script>
