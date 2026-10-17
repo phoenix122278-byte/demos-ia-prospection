@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "OfficeBrain",
+    "slug": "officebrain",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#F4F6FB",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.officebrain.app"
+    },
+    "android": {
+      "package": "com.officebrain.app",
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
